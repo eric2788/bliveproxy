@@ -144,7 +144,7 @@
           detail: { cmd, command }
     })
 
-    document.body.dispatchEvent(event)
+    document.dispatchEvent(event)
 
     let packet = makePacketFromCommand(command)
     callRealOnMessageByPacket(packet)
