@@ -20,7 +20,7 @@
   
   function main() {
     console.log('tester')
-    if (window.bliveproxyLaunched) {
+    if (window.helloproxy) {
       // 防止多次加载
       return
     }
@@ -29,7 +29,7 @@
   }
 
   function initApi() {
-    window.bliveproxyLaunched = true
+    window.helloproxy = true
   }
 
   function hook() {
@@ -64,6 +64,7 @@
   }
 
   function myOnMessage(event, realOnMessage) {
+    console.log('myOnMessage')
     if (!(event.data instanceof ArrayBuffer)) {
       realOnMessage(event)
       return
@@ -150,7 +151,7 @@
           detail: { cmd, command }
     })
 
-    document.dispatchEvent(event)
+    window.dispatchEvent(event)
 
     let packet = makePacketFromCommand(command)
     callRealOnMessageByPacket(packet)
