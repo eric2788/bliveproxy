@@ -40,6 +40,7 @@
       }
     })
     console.log('injected')
+    console.log(window.bliveproxyLaunched)
   }
 
   let proxyHandler = {
