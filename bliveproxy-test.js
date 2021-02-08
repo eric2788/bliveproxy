@@ -37,6 +37,7 @@ const HEADER_SIZE = 16
         return new Proxy(obj, proxyHandler)
       }
     })
+    console.log('injected')
   }
 
   let proxyHandler = {
