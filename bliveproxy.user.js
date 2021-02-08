@@ -1,22 +1,9 @@
 // ==UserScript==
 // @name         bliveproxy
-// @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  B站直播websocket hook框架
 // @author       xfgryujk
-// @include      /https?:\/\/live\.bilibili\.com\/?\??.*/
-// @include      /https?:\/\/live\.bilibili\.com\/\d+\??.*/
-// @include      /https?:\/\/live\.bilibili\.com\/(blanc\/)?\d+\??.*/
-// @require      https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.10/pako.min.js
-// @grant        none
 // ==/UserScript==
-
-// 使用方法：
-// bliveproxy.addCommandHandler('DANMU_MSG', command => {
-//   console.log(command)
-//   let info = command.info
-//   info[1] = '测试'
-// })
 
 (function() {
   const HEADER_SIZE = 16
@@ -32,7 +19,7 @@
   let textDecoder = new TextDecoder()
 
   function main() {
-    if (window.bliveproxy) {
+    if (window.bliveproxyLaunched) {
       // 防止多次加载
       return
     }
@@ -41,30 +28,7 @@
   }
 
   function initApi() {
-    window.bliveproxy = api
-  }
-
-  let api = {
-    addCommandHandler(cmd, handler) {
-      let handlers = this._commandHandlers[cmd]
-      if (!handlers) {
-        handlers = this._commandHandlers[cmd] = []
-      }
-      handlers.push(handler)
-    },
-    removeCommandHandler(cmd, handler) {
-      let handlers = this._commandHandlers[cmd]
-      if (!handlers) {
-        return
-      }
-      this._commandHandlers[cmd] = handlers.filter(item => item !== handler)
-    },
-
-    // 私有API
-    _commandHandlers: {},
-    _getCommandHandlers(cmd) {
-      return this._commandHandlers[cmd] || null
-    }
+    window.bliveproxyLaunched = true
   }
 
   function hook() {
@@ -175,13 +139,12 @@
     if (pos != -1) {
       cmd = cmd.substr(0, pos)
     }
-    let handlers = api._getCommandHandlers(cmd)
-    if (handlers) {
-      for (let handler of handlers) {
-        handler(command)
-      }
-    }
-    // console.log(command)
+    
+    const event = new CustomEvent('bliveproxy:handle', {
+          detail: { cmd, command }
+    })
+
+    window.dispatchEvent(event)
 
     let packet = makePacketFromCommand(command)
     callRealOnMessageByPacket(packet)
