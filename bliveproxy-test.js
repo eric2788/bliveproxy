@@ -5,7 +5,7 @@
 // @author       xfgryujk
 // ==/UserScript==
 
-(function(){
+(function() {
   const HEADER_SIZE = 16
 
   const WS_BODY_PROTOCOL_VERSION_INFLATE = 0
@@ -157,4 +157,4 @@
   }
 
   main()
-})()
+})();
