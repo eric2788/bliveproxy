@@ -40,7 +40,9 @@
       }
     })
     console.log('injected')
+    console.log('window')
     console.log(window)
+    console.log('unsafe')
     console.log(unsafeWindow)
   }
 
