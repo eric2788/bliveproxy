@@ -17,10 +17,9 @@
 
   let textEncoder = new TextEncoder()
   let textDecoder = new TextDecoder()
-
-  console.log('testing')
   
   function main() {
+    console.log('tester')
     if (window.bliveproxyLaunched) {
       // 防止多次加载
       return
