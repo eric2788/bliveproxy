@@ -17,10 +17,9 @@
 
   let textEncoder = new TextEncoder()
   let textDecoder = new TextDecoder()
-  
+
   function main() {
-    console.log('tester')
-    if (window.helloproxy) {
+    if (unsafeWindow.bliveproxy) {
       // 防止多次加载
       return
     }
@@ -29,21 +28,39 @@
   }
 
   function initApi() {
-    window.helloproxy = true
+    unsafeWindow.bliveproxy = api
+  }
+
+  let api = {
+    addCommandHandler(cmd, handler) {
+      let handlers = this._commandHandlers[cmd]
+      if (!handlers) {
+        handlers = this._commandHandlers[cmd] = []
+      }
+      handlers.push(handler)
+    },
+    removeCommandHandler(cmd, handler) {
+      let handlers = this._commandHandlers[cmd]
+      if (!handlers) {
+        return
+      }
+      this._commandHandlers[cmd] = handlers.filter(item => item !== handler)
+    },
+
+    // 私有API
+    _commandHandlers: {},
+    _getCommandHandlers(cmd) {
+      return this._commandHandlers[cmd] || null
+    }
   }
 
   function hook() {
-    window.WebSocket = new Proxy(window.WebSocket, {
+    unsafeWindow.WebSocket = new Proxy(unsafeWindow.WebSocket, {
       construct(target, args) {
         let obj = new target(...args)
         return new Proxy(obj, proxyHandler)
       }
     })
-    console.log('injected')
-    console.log('window')
-    console.log(window)
-    console.log('unsafe')
-    console.log(unsafeWindow)
   }
 
   let proxyHandler = {
@@ -67,7 +84,6 @@
   }
 
   function myOnMessage(event, realOnMessage) {
-    console.log('myOnMessage')
     if (!(event.data instanceof ArrayBuffer)) {
       realOnMessage(event)
       return
@@ -146,15 +162,13 @@
     if (pos != -1) {
       cmd = cmd.substr(0, pos)
     }
-    
-    console.log('have msg')
-    console.log(unsafeWindow)
-    
-    const event = new CustomEvent('bliveproxy:handle', {
-          detail: { cmd, command }
-    })
-
-    window.dispatchEvent(event)
+    let handlers = api._getCommandHandlers(cmd)
+    if (handlers) {
+      for (let handler of handlers) {
+        handler(command)
+      }
+    }
+    // console.log(command)
 
     let packet = makePacketFromCommand(command)
     callRealOnMessageByPacket(packet)
