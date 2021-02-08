@@ -17,6 +17,8 @@ const HEADER_SIZE = 16
   let textEncoder = new TextEncoder()
   let textDecoder = new TextDecoder()
 
+  console.log('testing')
+  
   function main() {
     if (window.bliveproxyLaunched) {
       // 防止多次加载
