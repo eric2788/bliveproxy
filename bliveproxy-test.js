@@ -139,6 +139,9 @@ const HEADER_SIZE = 16
       cmd = cmd.substr(0, pos)
     }
     
+    console.log('have msg')
+    console.log(unsafeWindow)
+    
     const event = new CustomEvent('bliveproxy:handle', {
           detail: { cmd, command }
     })
