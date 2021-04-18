@@ -24,7 +24,7 @@
       return
     }
     initApi()
-    hook2()
+    hook()
   }
 
   function initApi() {
