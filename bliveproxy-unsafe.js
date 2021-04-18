@@ -69,9 +69,9 @@
         this._send(data);
         const onmsg = this.onmessage
         if (onmsg instanceof Function){
-          this.onmessage = function (msg) {
+          this.addEventListener('msg', function (msg) {
             myOnMessage(msg, onmsg)
-          }
+          })
         }
         this.send = this._send
     }
