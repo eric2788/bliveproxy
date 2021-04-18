@@ -24,7 +24,7 @@
       return
     }
     initApi()
-    hook()
+    hook2()
   }
 
   function initApi() {
@@ -61,6 +61,20 @@
         return new Proxy(obj, proxyHandler)
       }
     })
+  }
+  
+  function hook2() {
+    WebSocket.prototype._send = WebSocket.prototype.send;
+      WebSocket.prototype.send = function (data) {
+        this._send(data);
+        const onmsg = this.onmessage
+        if (onmsg instanceof Function){
+          this.onmessage = function (msg) {
+            myOnMessage(msg, onmsg)
+          }
+        }
+        this.send = this._send
+    }
   }
 
   let proxyHandler = {
