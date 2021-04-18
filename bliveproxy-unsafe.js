@@ -24,7 +24,7 @@
       return
     }
     initApi()
-    hook()
+    hook2()
   }
 
   function initApi() {
@@ -70,7 +70,7 @@
         const onmsg = this.onmessage
         if (onmsg instanceof Function){
           this.addEventListener('msg', function (msg) {
-            myOnMessage(msg, ()->{})
+            myOnMessage(msg, onmsg)
           })
         }
         this.send = this._send
