@@ -3,6 +3,7 @@
 // @version      0.1
 // @description  B站直播websocket hook框架
 // @author       xfgryujk
+// @run-at       document-start
 // ==/UserScript==
 
 (function() {
