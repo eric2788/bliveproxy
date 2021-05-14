@@ -4,7 +4,7 @@
 // @description  B站直播websocket hook框架
 // @author       xfgryujk
 // @run-at       document-start
-// @script       https://cdn.jsdelivr.net/npm/pako@1.0.10/dist/pako.min.js
+// @script       https://cdn.jsdelivr.net/npm/@1.0.10/dist/pako.min.js
 // @script       https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@0.11.2/assets/cdn/brotli.bundle.js
 // ==/UserScript==
 
@@ -140,7 +140,7 @@
           body = pako.inflate(body)
           handleMessage(body, callRealOnMessageByPacket)
         } else if (ver == WS_BODY_PROTOCOL_VERSION_BROTLI) {
-           const brotliDecoded = window.BrotliDecode(body);
+           const brotliDecoded = BrotliDecode(body);
            handleMessage(brotliDecoded, callRealOnMessageByPacket)
         } else {
           body = JSON.parse(textDecoder.decode(body))
