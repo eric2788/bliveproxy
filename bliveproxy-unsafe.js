@@ -4,6 +4,8 @@
 // @description  B站直播websocket hook框架
 // @author       xfgryujk
 // @run-at       document-start
+// @script       https://cdn.jsdelivr.net/npm/pako@1.0.10/dist/pako.min.js
+// @script       https://cdn.jsdelivr.net/gh/eric2788/bilibili-jimaku-filter@0.11.2/assets/cdn/brotli.bundle.js
 // ==/UserScript==
 
 (function() {
@@ -12,6 +14,7 @@
   const WS_BODY_PROTOCOL_VERSION_INFLATE = 0
   const WS_BODY_PROTOCOL_VERSION_NORMAL = 1
   const WS_BODY_PROTOCOL_VERSION_DEFLATE = 2
+  const WS_BODY_PROTOCOL_VERSION_BROTLI = 3
 
   const OP_HEARTBEAT_REPLY = 3
   const OP_SEND_MSG_REPLY = 5
@@ -97,17 +100,16 @@
     handleMessage(data, callRealOnMessageByPacket)
   }
 
-  function makePacketFromCommand(command) {
+  function makePacketFromCommand(command, ver) {
     let body = textEncoder.encode(JSON.stringify(command))
-    return makePacketFromUint8Array(body, OP_SEND_MSG_REPLY)
+    return makePacketFromUint8Array(body, OP_SEND_MSG_REPLY, ver)
   }
 
-  function makePacketFromUint8Array(body, operation) {
+  function makePacketFromUint8Array(body, operation, ver) {
     let packLen = HEADER_SIZE + body.byteLength
     let packet = new ArrayBuffer(packLen)
 
     // 不需要DEFLATE
-    let ver = operation === OP_HEARTBEAT_REPLY ? WS_BODY_PROTOCOL_VERSION_INFLATE : WS_BODY_PROTOCOL_VERSION_NORMAL
     let packetView = new DataView(packet)
     packetView.setUint32(0, packLen)        // pack_len
     packetView.setUint16(4, HEADER_SIZE)    // raw_header_size
@@ -137,12 +139,15 @@
         if (ver == WS_BODY_PROTOCOL_VERSION_DEFLATE) {
           body = pako.inflate(body)
           handleMessage(body, callRealOnMessageByPacket)
+        } else if (ver == WS_BODY_PROTOCOL_VERSION_BROTLI) {
+           const brotliDecoded = window.BrotliDecode(body);
+           handleMessage(brotliDecoded, callRealOnMessageByPacket)
         } else {
           body = JSON.parse(textDecoder.decode(body))
-          handleCommand(body, callRealOnMessageByPacket)
+          handleCommand(body, callRealOnMessageByPacket, ver)
         }
       } else {
-        let packet = makePacketFromUint8Array(body, operation)
+        let packet = makePacketFromUint8Array(body, operation, ver)
         callRealOnMessageByPacket(packet)
       }
 
@@ -150,7 +155,7 @@
     }
   }
 
-  function handleCommand(command, callRealOnMessageByPacket) {
+  function handleCommand(command, callRealOnMessageByPacket, ver) {
     if (command instanceof Array) {
       for (let oneCommand of command) {
         this.handleCommand(oneCommand)
@@ -171,7 +176,7 @@
     }
     // console.log(command)
 
-    let packet = makePacketFromCommand(command)
+    let packet = makePacketFromCommand(command, ver)
     callRealOnMessageByPacket(packet)
   }
 
